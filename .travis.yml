@@ -5,3 +5,4 @@ jdk:
 
 script: 
   - gradle check
+  - gradle assemble
