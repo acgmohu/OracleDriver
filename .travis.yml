@@ -1,5 +1,5 @@
 language: java
-install : false
+install: false
 jdk:
   - oraclejdk7
 
@@ -10,5 +10,4 @@ before_install:
  - chmod +x gradlew
  
 script: 
-  - gradle check
-  - gradle assemble
+  - gradlew clean fatjar
