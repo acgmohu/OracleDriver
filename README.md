@@ -4,3 +4,9 @@ Fork from https://github.com/CalebFenton/dex-oracle
 
 
 It works well for reflection calls.
+
+#### Build
+
+```
+gradlew clean fatjar
+```
