@@ -42,13 +42,28 @@ public class TargetParser {
                         // Possibly not using byte array format for string (good luck)
                         methodArguments[i] = jsonValue;
                     }
+                } else if (parameterTypes[i] == char.class) {
+                    try {
+                        int ii = Integer.valueOf(jsonValue);
+                        methodArguments[i] = (char)ii;
+                    } catch (JsonSyntaxException ex) {
+                        System.out.println(ex.getLocalizedMessage());
+                        methodArguments[i] = jsonValue;
+                    }
+                } else if (parameterTypes[i] == char[].class) {
+                    int[] bytes = (int[]) gson.fromJson(jsonValue, Class.forName("[I"));
+                    char[] chars = new char[bytes.length];
+                    for (int j=0; j<bytes.length; j++) {
+                        char c = (char)bytes[j];
+                        chars[j] = c;
+                    }
+                    methodArguments[i] = chars;
                 } else {
-                    // System.out.println("Parsing: " + itemJson + " as " + paramTypes[i]);
+//                    System.out.println("Parsing: " + jsonValue + " as " + parameterTypes[i]);
                     methodArguments[i] = gson.fromJson(jsonValue, parameterTypes[i]);
                 }
             }
         }
-
         Class<?> methodClass = Class.forName(className);
         Method method = methodClass.getDeclaredMethod(methodName, parameterTypes);
 
@@ -60,7 +75,7 @@ public class TargetParser {
         String targetJson = FileUtils.readFile(fileName);
         JsonArray targetItems = new JsonParser().parse(targetJson).getAsJsonArray();
         // JsonArray targetItems = json.getAsJsonArray();
-        List<InvocationTarget> targets = new LinkedList<InvocationTarget>();
+        List<InvocationTarget> targets = new LinkedList<>();
         for (JsonElement element : targetItems) {
             JsonObject targetItem = element.getAsJsonObject();
             String id = targetItem.get("id").getAsString();
@@ -71,35 +86,36 @@ public class TargetParser {
             for (int i = 0; i < arguments.length; i++) {
                 arguments[i] = argumentsJson.get(i).getAsString();
             }
-
             InvocationTarget target = buildTarget(gson, id, className, methodName, arguments);
             targets.add(target);
         }
+
 
         return targets;
     }
 
     private static Class<?> smaliToJavaClass(String className) throws ClassNotFoundException {
-        if (className.equals("I")) {
-            return int.class;
-        } else if (className.equals("V")) {
-            return void.class;
-        } else if (className.equals("Z")) {
-            return boolean.class;
-        } else if (className.equals("B")) {
-            return byte.class;
-        } else if (className.equals("S")) {
-            return short.class;
-        } else if (className.equals("J")) {
-            return long.class;
-        } else if (className.equals("C")) {
-            return char.class;
-        } else if (className.equals("F")) {
-            return float.class;
-        } else if (className.equals("D")) {
-            return double.class;
-        } else {
-            return Class.forName(className);
+        switch (className) {
+            case "I":
+                return int.class;
+            case "V":
+                return void.class;
+            case "Z":
+                return boolean.class;
+            case "B":
+                return byte.class;
+            case "S":
+                return short.class;
+            case "J":
+                return long.class;
+            case "C":
+                return char.class;
+            case "F":
+                return float.class;
+            case "D":
+                return double.class;
+            default:
+                return Class.forName(className);
         }
     }
 
@@ -111,7 +127,7 @@ public class TargetParser {
             return loadTargetsFromFile(gson, fileName);
         } else {
             InvocationTarget target = buildTarget(gson, args[0], args[1], Arrays.copyOfRange(args, 2, args.length));
-            List<InvocationTarget> targets = new LinkedList<InvocationTarget>();
+            List<InvocationTarget> targets = new LinkedList<>();
             targets.add(target);
 
             return targets;
