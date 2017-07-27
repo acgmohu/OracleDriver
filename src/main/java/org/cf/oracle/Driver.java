@@ -1,10 +1,6 @@
 package org.cf.oracle;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -55,7 +51,7 @@ public class Driver {
             return null;
         }
 
-        String output = "";
+        String output;
         try {
             output = GSON.toJson(returnClass.cast(returnObject));
         } catch (Exception ex) {
@@ -90,6 +86,11 @@ public class Driver {
             die("Unable to parse targets", e);
         }
 
+        if (targets == null){
+            die("targets is null", new Exception("None"));
+            return;
+        }
+
         String output = null;
         if (!multipleTargets) {
             InvocationTarget target = targets.get(0);
@@ -103,7 +104,8 @@ public class Driver {
                 System.out.println(OUTPUT_HEADER + output);
             }
         } else {
-            Map<String, String[]> idToOutput = new HashMap<String, String[]>();
+            // @<json file>
+            Map<String, String[]> idToOutput = new HashMap<>();
             for (InvocationTarget target : targets) {
                 String status;
                 try {
