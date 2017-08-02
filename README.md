@@ -9,3 +9,12 @@ It works well for reflection calls.
 ```
 gradlew clean fatjar
 ```
+
+
+
+### Convert to dex
+
+```
+dx --dex --force-jumbo --output=driver.dex build/libs/OracleDriver-1.0.1.jar
+```
+

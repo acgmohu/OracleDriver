@@ -76,6 +76,7 @@ public class Driver {
         try {
             StackSpoofer.init();
         } catch (NumberFormatException | IOException e) {
+            System.out.println("Error parsing stack spoof info");
             die("Error parsing stack spoof info", e);
         }
 
@@ -83,11 +84,13 @@ public class Driver {
         try {
             targets = TargetParser.parse(args, GSON);
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IOException e) {
+            System.out.println("Unable to parse targets.");
             die("Unable to parse targets", e);
         }
 
         if (targets == null){
-            die("targets is null", new Exception("None"));
+            System.out.println("Targets is null.");
+            die("Targets is null", new Exception("None"));
             return;
         }
 
@@ -112,13 +115,15 @@ public class Driver {
                     output = invokeMethod(target.getMethod(), target.getArguments());
                     status = "success";
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IOException e) {
-                    StringBuilder sb = new StringBuilder("Error executing '");
-                    sb.append(target.getMethod()).append("' with ").append(target.getArgumentsString()).append('\n');
-                    StringWriter sw = new StringWriter();
-                    e.printStackTrace(new PrintWriter(sw));
-                    sb.append(sw.getBuffer());
-                    output = sb.toString();
-                    status = "failure";
+                    e.printStackTrace();
+                    continue;
+//                    StringBuilder sb = new StringBuilder("Error executing '");
+//                    sb.append(target.getMethod()).append("' with ").append(target.getArgumentsString()).append('\n');
+//                    StringWriter sw = new StringWriter();
+//                    e.printStackTrace(new PrintWriter(sw));
+//                    sb.append(sw.getBuffer());
+//                    output = sb.toString();
+//                    status = "failure";
                 }
                 idToOutput.put(target.getId(), new String[] { status, output });
             }

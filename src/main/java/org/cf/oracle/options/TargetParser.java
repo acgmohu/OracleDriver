@@ -45,7 +45,8 @@ public class TargetParser {
                 } else if (parameterTypes[i] == char.class) {
                     try {
                         int ii = Integer.valueOf(jsonValue);
-                        methodArguments[i] = (char)ii;
+                        char c = (char)ii;
+                        methodArguments[i] = c;
                     } catch (JsonSyntaxException ex) {
                         System.out.println(ex.getLocalizedMessage());
                         methodArguments[i] = jsonValue;
@@ -70,8 +71,7 @@ public class TargetParser {
         return new InvocationTarget(id, args, methodArguments, method);
     }
 
-    private static List<InvocationTarget> loadTargetsFromFile(Gson gson, String fileName) throws IOException,
-                    ClassNotFoundException, NoSuchMethodException, SecurityException {
+    private static List<InvocationTarget> loadTargetsFromFile(Gson gson, String fileName) throws IOException {
         String targetJson = FileUtils.readFile(fileName);
         JsonArray targetItems = new JsonParser().parse(targetJson).getAsJsonArray();
         // JsonArray targetItems = json.getAsJsonArray();
@@ -86,8 +86,18 @@ public class TargetParser {
             for (int i = 0; i < arguments.length; i++) {
                 arguments[i] = argumentsJson.get(i).getAsString();
             }
-            InvocationTarget target = buildTarget(gson, id, className, methodName, arguments);
+
+            InvocationTarget target;
+            try {
+                target = buildTarget(gson, id, className, methodName, arguments);
+            } catch (ClassNotFoundException | NoSuchMethodException | SecurityException e) {
+                System.out.println("Could not build target: " + className + ";->" + methodName);
+                e.printStackTrace();
+                continue;
+            }
+
             targets.add(target);
+
         }
 
 
