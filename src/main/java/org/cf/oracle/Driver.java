@@ -67,6 +67,11 @@ public class Driver {
     }
 
     public static void main(String[] args) {
+        if (args.length < 1) {
+            showUsage();
+            System.exit(-1);
+        }
+
         boolean multipleTargets = args.length < 2 && args[0].startsWith("@");
         if (args.length < 1 && !multipleTargets) {
             showUsage();
